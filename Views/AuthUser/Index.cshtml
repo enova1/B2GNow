@@ -1,0 +1,31 @@
+﻿@model System.Collections.Generic.List<MVC_CORE.Models.AuthUser>?
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>AuthUsers</h2>
+
+<form asp-controller="AuthUser" asp-action="Details" method="post">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Select</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var authUser in Model!)
+        {
+            <tr>
+                <td>@authUser.Id</td>
+                <td>@authUser.FirstName @authUser.LastName</td>
+                <td><input type="checkbox" name="selectedUsers" value="@authUser.Id" /></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Select</button>
+</form>
