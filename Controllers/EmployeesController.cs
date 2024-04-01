@@ -70,7 +70,7 @@ namespace MVC_CORE.Controllers
                 })
                 .ToList();
 
-            return Task.FromResult<IActionResult>(View("Details"));
+            return View(employeeInfo);
         }
 
         //=======================================================================================================
