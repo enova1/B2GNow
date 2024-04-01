@@ -31,6 +31,8 @@ namespace MVC_CORE.Controllers
                 .OrderBy(e => e.FirstName)
                 .ThenBy(e => e.LastName)
                 .ToListAsync();
+                
+            employees = employees.Distinct().ToList();
 
             return View(employees);
         }
