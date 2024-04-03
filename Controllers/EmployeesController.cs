@@ -58,7 +58,7 @@ namespace MVC_CORE.Controllers
         // display another list of employees with the full name, earliest hire date,
         // latest hire date, and average length of employment in years.
         // No filters are needed for this list.
-        public Task<IActionResult> DisplayList()
+        public IQueryable<List<Employees>> DisplayList()
         {
             var employeeInfo = _context.Employees!
                 .Select(e => new
@@ -68,9 +68,9 @@ namespace MVC_CORE.Controllers
                     LatestHireDate = e.HireDate,
                     AverageLengthOfEmployment = (DateTime.Now - e.HireDate).TotalDays / 365
                 })
-                .ToList();
+                .Cast<List<Employees>>();
 
-            return View(employeeInfo);
+            return employeeInfo;
         }
 
         //=======================================================================================================
