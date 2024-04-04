@@ -38,7 +38,7 @@ namespace MVC_CORE
 
             var app = builder.Build();
 
-            app.UseMiddleware<ModelStateValidationMiddleware>();
+           // app.UseMiddleware<ModelStateValidationMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -53,7 +53,8 @@ namespace MVC_CORE
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
+           // app.UseAuthentication();
 
             app.MapControllerRoute(
                 name: "default",

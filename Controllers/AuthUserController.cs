@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MVC_CORE.Data;
 using MVC_CORE.Models;
 
 namespace MVC_CORE.Controllers
 {
+    [AllowAnonymous]
     public class AuthUserController : Controller
     {
         private readonly ExampleDbContext? _context;

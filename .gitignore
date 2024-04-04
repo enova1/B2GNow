@@ -23,7 +23,7 @@ bin/
 *.props
 
 # Publish output
-/wwwroot/
+# /wwwroot/
 
 # Other files
 Thumbs.db

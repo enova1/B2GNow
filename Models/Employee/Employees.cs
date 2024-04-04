@@ -14,7 +14,7 @@ namespace MVC_CORE.Models.Employee
         [Required] public required DateTime HireDate { get; set; }
 
         // Navigation property
-        [Required] public required List<EmployeePhones> EmployeePhones { get; set; }
-        [Required] public required List<EmployeeAddresses> EmployeeAddresses { get; set; }
+        public List<EmployeePhones>? EmployeePhones { get; set; }
+        public List<EmployeeAddresses>? EmployeeAddresses { get; set; }
     }
 }

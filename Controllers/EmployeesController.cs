@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using MVC_CORE.Models.Employee;
 
 namespace MVC_CORE.Controllers
 {
+    [AllowAnonymous]
     public class EmployeesController : Controller
     {
         private readonly ExampleDbContext _context;
@@ -31,9 +33,8 @@ namespace MVC_CORE.Controllers
                 .OrderBy(e => e.FirstName)
                 .ThenBy(e => e.LastName)
                 .ToListAsync();
-                
-            employees = employees.Distinct().ToList();
 
+            employees = employees.Distinct().ToList();
             return View(employees);
         }
         
@@ -58,7 +59,7 @@ namespace MVC_CORE.Controllers
         // display another list of employees with the full name, earliest hire date,
         // latest hire date, and average length of employment in years.
         // No filters are needed for this list.
-        public IQueryable<List<Employees>> DisplayList()
+        public Task<IActionResult> DisplayList()
         {
             var employeeInfo = _context.Employees!
                 .Select(e => new
@@ -68,9 +69,9 @@ namespace MVC_CORE.Controllers
                     LatestHireDate = e.HireDate,
                     AverageLengthOfEmployment = (DateTime.Now - e.HireDate).TotalDays / 365
                 })
-                .Cast<List<Employees>>();
+                .ToList();
 
-            return employeeInfo;
+            return Task.FromResult<IActionResult>(View("Details"));
         }
 
         //=======================================================================================================
@@ -93,43 +94,43 @@ namespace MVC_CORE.Controllers
         }
 
         // POST: Employees/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("EmployeeId,FirstName,LastName,HireDate")] Employees employees)
         {
             //Todo: Add IsValid check to middle where follow D.R.Y best practices
-   //         if (ModelState.IsValid)
-    //        {
-                _context.Add(employees);
-                await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
 
-                var saveData = await _context.Employees!
-                    .Include(e => e.EmployeePhones)
-                    .Include(e => e.EmployeeAddresses)
-                    .FirstOrDefaultAsync(m => m.EmployeeId == employees.EmployeeId);
+            _context.Add(employees);
+            await _context.SaveChangesAsync();
 
-                if (saveData == null)
-                {
-                    return NotFound();
-                }
+            var saveData = await _context.Employees!
+                .Include(e => e.EmployeePhones)
+                .Include(e => e.EmployeeAddresses)
+                .FirstOrDefaultAsync(m => m.EmployeeId == employees.EmployeeId);
 
+            if (saveData == null)
+            {
+                return NotFound();
+            }
+
+            if (employees.EmployeePhones != null)
                 foreach (var number in employees.EmployeePhones)
                 {
-                    saveData.EmployeePhones.Add(number);
+                    saveData.EmployeePhones!.Add(number);
                 }
 
+            if (employees.EmployeeAddresses != null)
                 foreach (var addy in employees.EmployeeAddresses)
                 {
-                    saveData.EmployeeAddresses.Add(addy);
+                    saveData.EmployeeAddresses!.Add(addy);
                 }
 
-                await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
-   //         }
-            return View(employees);
+            return RedirectToAction(nameof(Index));
+
         }
 
         // GET: Employees/Edit/5
