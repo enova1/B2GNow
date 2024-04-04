@@ -96,7 +96,6 @@ namespace MVC_CORE.Controllers
         // POST: Employees/Create
         public async Task<IActionResult> Create([Bind("EmployeeId,FirstName,LastName,HireDate")] Employees employees)
         {
-            //Todo: Add IsValid check to middle where follow D.R.Y best practices
             if (!ModelState.IsValid)
             {
                 return View();
