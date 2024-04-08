@@ -47,6 +47,6 @@ namespace MVC_CORE.Models.Employee
 
         // Navigation property
         [ForeignKey("EmployeeId")]
-        public Employees Employees { get; set; }
+        public Employees? Employees { get; set; }
     }
 }
