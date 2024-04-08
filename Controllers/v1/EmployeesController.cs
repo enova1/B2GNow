@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using MVC_CORE.Data;
-using MVC_CORE.Models.Employee;
-
-namespace MVC_CORE.Controllers
+﻿namespace MVC_CORE.Controllers.v1
 {
+    /// <summary>
+    /// Employees Controller for the Employees view.
+    /// </summary>
     [AllowAnonymous]
     public class EmployeesController : Controller
     {
@@ -21,12 +13,18 @@ namespace MVC_CORE.Controllers
         {
             _context = context;
         }
-        
-        // Please display a distinct list of all the employees
-        // including their address and phone numbers in the database,
-        // sorted by first name, then by last name.
+
+        // GET: Employees
+        /// <summary>
+        /// Display the list of employees with their addresses and phone numbers in the database sorted by first name, then by last name.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
+            // Please display a distinct list of all the employees
+            // including their address and phone numbers in the database,
+            // sorted by first name, then by last name.
+
             var employees = await _context.Employees!
                 .Include(e => e.EmployeePhones)
                 .Include(e => e.EmployeeAddresses)
@@ -37,13 +35,22 @@ namespace MVC_CORE.Controllers
             employees = employees.Distinct().ToList();
             return View(employees);
         }
-        
-        // Take the user’s input of a phone number and/or ZIP code and display any employees,
-        // their addresses, and their phone numbers where the phone number
-        // and/or ZIP code matches the user’s input.
+
+        // POST: Employees/Filter
+        /// <summary>
+        /// Filter the employees by phone number and zip code and display the results in the view Index view.
+        /// </summary>
+        /// <param name="phone"></param>
+        /// <param name="zipCode"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Filter(string phone, string zipCode)
         {
+
+            // Take the user’s input of a phone number and/or ZIP code and display any employees,
+            // their addresses, and their phone numbers where the phone number
+            // and/or ZIP code matches the user’s input.
+
             var employees = _context.Employees!
                 .Include(e => e.EmployeePhones)
                 .Include(e => e.EmployeeAddresses)
@@ -56,15 +63,21 @@ namespace MVC_CORE.Controllers
             return View("Index", employees);
         }
 
-        // display another list of employees with the full name, earliest hire date,
-        // latest hire date, and average length of employment in years.
-        // No filters are needed for this list.
+        // GET: Employees/DisplayList
+        /// <summary>
+        /// Display the list of employees with their full name, earliest hire date, latest hire date, and average length of employment in years. 
+        /// </summary>
+        /// <returns></returns>
         public Task<IActionResult> DisplayList()
         {
+            // display another list of employees with the full name, earliest hire date,
+            // latest hire date, and average length of employment in years.
+            // No filters are needed for this list.
+
             var employeeInfo = _context.Employees!
                 .Select(e => new
                 {
-                    FullName = $"{e.FirstName} {e.LastName}" ,
+                    FullName = $"{e.FirstName} {e.LastName}",
                     EarliestHireDate = e.HireDate,
                     LatestHireDate = e.HireDate,
                     AverageLengthOfEmployment = (DateTime.Now - e.HireDate).TotalDays / 365
@@ -74,9 +87,12 @@ namespace MVC_CORE.Controllers
             return Task.FromResult<IActionResult>(View("Details"));
         }
 
-        //=======================================================================================================
-
         // GET: Employees/Details/5
+        /// <summary>
+        /// Display the Details of an employee with their addresses and phone numbers.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -93,10 +109,14 @@ namespace MVC_CORE.Controllers
             return View(employees);
         }
 
-        // POST: Employees/Create
-        public async Task<IActionResult> Create([Bind("EmployeeId,FirstName,LastName,HireDate")] Employees employees)
+        // GET: Employees/Create
+        /// <summary>
+        /// Create a new employee with their addresses and phone numbers.
+        /// </summary>
+        /// <param name="employees"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Create(Employees employees)
         {
-            //Todo: Add IsValid check to middle where follow D.R.Y best practices
             if (!ModelState.IsValid)
             {
                 return View();
@@ -134,6 +154,11 @@ namespace MVC_CORE.Controllers
         }
 
         // GET: Employees/Edit/5
+        /// <summary>
+        /// get the employee to edit in the database.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -150,19 +175,23 @@ namespace MVC_CORE.Controllers
         }
 
         // POST: Employees/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// save the edited employee in the database.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="employees"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EmployeeId,FirstName,LastName,HireDate")] Employees employees)
+        public async Task<IActionResult> Edit(int id, Employees employees)
         {
-            if (id != employees.EmployeeId)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
+                if (id != employees.EmployeeId)
+                {
+                    return NotFound();
+                }
+
                 try
                 {
                     _context.Update(employees);
@@ -185,6 +214,11 @@ namespace MVC_CORE.Controllers
         }
 
         // GET: Employees/Delete/5
+        /// <summary>
+        /// get the employee to delete from the database.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -203,6 +237,11 @@ namespace MVC_CORE.Controllers
         }
 
         // POST: Employees/Delete/5
+        /// <summary>
+        /// delete the employee from the database.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -217,6 +256,11 @@ namespace MVC_CORE.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// check if the employee exists in the database.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private bool EmployeesExists(int id)
         {
             return _context.Employees.Any(e => e.EmployeeId == id);

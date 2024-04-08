@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MVC_CORE.Models;
 
 /// <summary>
-/// Authorized User.
+/// Authorized User model for the AuthUser view.
 /// </summary>
 public class AuthUser
 {
