@@ -24,15 +24,14 @@
             // Please display a distinct list of all the employees
             // including their address and phone numbers in the database,
             // sorted by first name, then by last name.
-
             var employees = await _context.Employees!
                 .Include(e => e.EmployeePhones)
                 .Include(e => e.EmployeeAddresses)
                 .OrderBy(e => e.FirstName)
                 .ThenBy(e => e.LastName)
+                .Distinct()
                 .ToListAsync();
 
-            employees = employees.Distinct().ToList();
             return View(employees);
         }
 
