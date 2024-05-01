@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Authentication;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
-using MVC_CORE.Middleware;
-using System.Configuration;
+using Hangfire.Dashboard;
+using Hangfire.EntityFrameworkCore;
 
 namespace MVC_CORE
 {
@@ -26,16 +26,43 @@ namespace MVC_CORE
                 options.Filters.Add(new AuthorizeFilter(policy));
 
             });
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                                   ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             builder.Services.AddDbContext<ExampleDbContext>();
+
+            builder.Services.AddHangfire(configuration =>
+                configuration.UseEFCoreStorage(dbContextOptionsBuilder =>
+                            dbContextOptionsBuilder.UseSqlite(connectionString),
+                        new EFCoreStorageOptions
+                        {
+                            CountersAggregationInterval = new TimeSpan(0, 5, 0),
+                            DistributedLockTimeout = new TimeSpan(0, 10, 0),
+                            JobExpirationCheckInterval = new TimeSpan(0, 30, 0),
+                            QueuePollInterval = new TimeSpan(0, 0, 15),
+                            Schema = string.Empty,
+                            SlidingInvisibilityTimeout = new TimeSpan(0, 5, 0),
+                        }).
+                    UseDatabaseCreator());
 
             builder.Services.AddRazorPages()
                 .AddMicrosoftIdentityUI();
 
             var app = builder.Build();
 
-           // app.UseMiddleware<ModelStateValidationMiddleware>();
+            app.UseHangfireDashboard(
+                "/hangfire",
+                new DashboardOptions
+                {
+                    AppPath = "https://localhost:44378/",
+                    Authorization = Array.Empty<IDashboardAuthorizationFilter>(),
+                    DarkModeEnabled = true,
+                    DashboardTitle = "Hangfire BCT Dashboard",
+                    DisplayStorageConnectionString = true,
+                    DefaultRecordsPerPage = 10
+                });
+
+            // app.UseMiddleware<ModelStateValidationMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
